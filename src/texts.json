@@ -1,6 +1,10 @@
 {
-  "dialog-remove": {
+  "dialog-remove-topic": {
     "title": "Remove",
     "content": "You really want to delete the topic?"
+  },
+  "dialog-remove-concept": {
+    "title": "Remove",
+    "content": "You really want to delete the concept?"
   }
 }

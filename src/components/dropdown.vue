@@ -1,21 +1,32 @@
 <template lang="pug">
-  div(
-    v-show="!$store.getters.isHiddenDropdown(reference, id)"
-    :class="[mix, 'dropdown']")
-    button(
-      @click.stop="$emit(name); reverseActionText(name); toggle()"
-      v-for="(value, name) in $store.getters.getMenuActions(reference, id)"
-      :key="value.id"
+  div
+    button-act(
+      @click="toggle()"
       type="button"
-      class="dropdown__act"
-    ) {{ value[0] }}
+      :mix="mixMore"
+      :modifier="'more'"
+    )
+    div(
+      v-show="!$store.getters.isHiddenDropdown(reference, id)"
+      :class="[mix, 'dropdown']")
+      button(
+        @click.stop="$emit(name); reverseActionText(name); toggle()"
+        v-for="(value, name) in $store.getters.getMenuActions(reference, id)"
+        :key="value.id"
+        class="dropdown__act"
+        type="button"
+      ) {{ value[0] }}
 </template>
 <script>
+  import buttonAct from './button-act'
+
   export default {
-    props: ['reference', 'id', 'mix'],
+    props: ['reference', 'id', 'mix', 'mixMore'],
     data: () => ({
-      isHidden: true
     }),
+    components: {
+      buttonAct
+    },
     created () {
     },
     methods: {
@@ -48,8 +59,8 @@
     background: #ffffff;
     box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.25);
     &--concept {
-      top: 28px;
-      right: 13px;
+      top: 20px;
+      right: 0;
     }
     &__act {
       font-size: 13px;

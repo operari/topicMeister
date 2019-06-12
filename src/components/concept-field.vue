@@ -1,82 +1,108 @@
 <template lang="pug">
-  div(:class="[{ 'concepts__concept--full': toggleConcept }, 'concepts__concept']")
+  div(:class="[{ 'concepts__concept--full': toggleConcept }, { 'concepts__concept--change' : isChangeConcept }, 'concepts__concept']")
     .concepts__controls
-      button-play(:mix="'concepts__control svg-icon--small'")
-      button-stop(v-show="false" :mix="'concepts__control svg-icon--small'")
-      button-eye(:mix="'concepts__control concepts__count svg-icon--small'")
-      button-more(
-        @click="$emit('click-more', 'ddConcept')"
-        :mix="'concepts__control svg-icon--small'"
+      button-act(
+        :mix="'concepts__control'"
+        :modifier="'play'"
+        :isSmall="true"
       )
-    dropdown(
-      v-on:change-concept="changeConcept()"
-      v-on:remove-concept="$emit('remove-concept')"
-      :mix="'dropdown--concept'"
-      :reference="'ddConcept'"
-      :id="id"
-    )
+      button-act(
+        v-show="false"
+        :mix="'concepts__control'"
+        :modifier="'stop'"
+        :isSmall="true"
+      )
+      button-act(
+        :mix="'concepts__control concepts__count'"
+        :modifier="'eye'"
+        :isSmall="true"
+      )
+      dropdown(
+        v-on:change-concept="changeConcept()"
+        v-on:remove-concept="removeConcept()"
+        :mix="'dropdown--concept'"
+        :mixMore="'concepts__control svg-icon--small'"
+        :reference="'ddConcept'"
+        :id="concept.id"
+      )
     div(v-if="!isChangeConcept" class="concepts__title") {{ concept.title }}
     div(v-else class="concepts__title")
       input-field(
-        v-on:input="$emit('input-title', $event)"
-        :value="''"
+        v-on:keyup-ctrl-enter="updateConcept()"
+        v-model="titleChange"
         :mix="'concepts__input'"
         ref="input"
       )
     div(v-if="!isChangeConcept" class="concepts__content") {{ concept.content }}
     div(v-else class="concepts__content")
       textarea-field(
-        v-on:input="$emit('input-content', $event)"
-        :value="''"
+        v-on:keyup-ctrl-enter="updateConcept()"
+        v-model="contentChange"
         :mix="'concepts__textarea'"
       )
     div(v-if="!isChangeConcept")
-      button-full(
+      button-act(
         v-show="!toggleConcept"
         v-on:click="toggle()"
+        :modifier="'full'"
         :mix="'concepts__full'")
-      button-full-exit(
+      button-act(
         v-show="toggleConcept"
         v-on:click="toggle()"
+        :modifier="'full-exit'"
         :mix="'concepts__full'"
       )
     div(v-else)
-      //- Todo
-        - make component
-        - think about component architecture
-      button(
-        @click="$emit('click-apply'); isChangeConcept = !isChangeConcept"
-        type="button"
-        class="concepts__done svg-icon svg-icon--done svg-icon--small"
+      button-act(
+        @click="updateConcept()"
+        :mix="'concepts__done'"
+        :modifier="'done'"
+        :isSmall="true"
       )
 </template>
 <script>
-  import buttonMore from './button-more'
-  import buttonEye from './button-eye'
-  import buttonPlay from './button-play'
-  import buttonStop from './button-stop'
-  import buttonFull from './button-full'
-  import buttonFullExit from './button-full-exit'
+  import buttonAct from './button-act'
   import dropdown from './dropdown'
   import inputField from './input-field'
   import textareaField from './textarea'
 
   export default {
-    props: ['concept', 'id'],
+    props: ['concept'],
     data: () => ({
       toggleConcept: false,
       isChangeConcept: false
     }),
     components: {
-      buttonMore,
-      buttonEye,
-      buttonPlay,
-      buttonStop,
-      buttonFull,
-      buttonFullExit,
+      buttonAct,
       dropdown,
       inputField,
       textareaField
+    },
+    computed: {
+      titleChange: {
+        get () {
+          return this.concept.titleChange
+        },
+        set (value) {
+          this.$store.commit({
+            type: 'updateConceptTitleChange',
+            value: value,
+            id: this.concept.id
+          })
+        }
+      },
+      contentChange: {
+        get () {
+          return this.concept.contentChange
+        },
+        set (value) {
+          this.$store.commit({
+            type: 'updateConceptContentChange',
+            value: value,
+            id: this.concept.id
+          })
+        }
+      }
     },
     methods: {
       toggle () {
@@ -92,6 +118,31 @@
             this.focus()
           })
         }
+      },
+      updateConcept () {
+        this.$store.commit({
+          type: 'updateConcept',
+          id: this.concept.id
+        })
+        this.$store.commit({
+          type: 'reverseActionText',
+          ref: 'ddConcept',
+          id: this.concept.id,
+          prop: 'change-concept'
+        })
+        this.changeConcept()
+      },
+      removeConcept () {
+        this.$store.commit('setDialogTexts', 'dialog-remove-concept')
+        this.$store.commit('toggleDialog')
+        this.$store.commit('isRemoveConcept')
+        this.$store.commit('setWillRemoveConcept', this.concept.id)
+        this.$store.commit({
+          type: 'reverseActionText',
+          ref: 'ddConcept',
+          id: this.concept.id,
+          prop: 'remove-concept'
+        })
       }
     }
   }
@@ -112,6 +163,10 @@
       box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.25);
       &--full {
         height: auto;
+      }
+      &--change {
+        height: auto;
+        min-height: 140px;
       }
       // &--add {
       //   min-height: 88px;
@@ -145,7 +200,7 @@
     }
     &__controls {
       position: absolute;
-      z-index: 1;
+      z-index: 3;
       top: 7px;
       right: 10px;
       display: flex;

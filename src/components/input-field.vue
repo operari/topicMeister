@@ -1,7 +1,8 @@
 <template lang="pug">
   input(
-    v-on:keyup.enter="$emit('keyup-enter')"
     v-on:input="$emit('input', $event.target.value)"
+    v-on:keyup.enter="$emit('keyup-enter')"
+    v-on:keyup.ctrl.enter="$emit('keyup-ctrl-enter')"
     :value="value"
     :class="mix"
     ref="input"

@@ -2,39 +2,63 @@
   div(class="concepts__concept concepts__concept--add")
     .concepts__title
       input-field(
-        v-on:input="$emit('input-title', $event)"
-        :value="newConcept.title"
+        v-model="newConceptTitle"
         :mix="'concepts__input'"
         ref="input"
       )
     .concepts__content
       textarea-field(
-        v-on:input="$emit('input-content', $event)"
-        :value="newConcept.content"
+        v-model="newConceptContent"
         :mix="'concepts__textarea'"
       )
-    button-add-box(
-      @click="$emit('click')"
+    button-act(
+      @click="pushConcept()"
       :mix="'concepts__apply'"
+      :modifier="'add-box'"
+      :isSmall="true"
     )
 </template>
 <script>
-  import buttonAddBox from './button-add-box'
+  import buttonAct from './button-act'
   import inputField from './input-field'
   import textareaField from './textarea'
 
   export default {
-    props: ['newConcept'],
+    props: [],
     data: () => ({
     }),
     components: {
-      buttonAddBox,
+      buttonAct,
       inputField,
       textareaField
+    },
+    computed: {
+      newConceptTitle: {
+        get () {
+          return this.$store.getters.newConcept.title
+        },
+        set (value) {
+          this.$store.commit('updateNewConceptTitle', value)
+        }
+      },
+      newConceptContent: {
+        get () {
+          return this.$store.getters.newConcept.content
+        },
+        set (value) {
+          this.$store.commit('updateNewConceptContent', value)
+        }
+      }
     },
     methods: {
       focus () {
         this.$refs.input.focus()
+      },
+      pushConcept () {
+        this.$store.commit('pushDropdown', 'ddConcept')
+        const pickedConcept = this.$store.getters.concepts[this.$store.getters.pickedTopic.name]
+        this.$store.commit('pushConcept', pickedConcept)
+        this.$store.commit('restoreNewConcept')
       }
     }
   }
@@ -58,6 +82,9 @@
       height: 100%;
       color: #1C1C1C;
       border: 0;
+      .concepts__concept--change & {
+        min-height: 100px;
+      }
     }
   }
 </style>

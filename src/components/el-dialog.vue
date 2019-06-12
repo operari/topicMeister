@@ -4,16 +4,19 @@
     .dialog__content {{ getTexts.content }}
     .dialog__actions
       el-button(
-        v-on:click="toggle()"
+        v-on:click="decline(); toggle()"
         :mix="'dialog__button'"
         :title="'Decline'"
       )
       el-button(
-        v-on:click="$emit('click-accept'); toggle()"
+        v-on:click="accept(); toggle()"
         :mix="'dialog__button'"
         :title="'Accept'"
       )
-    div(@click="toggle()" class="dialog__close svg-icon svg-icon--close")
+    div(
+      @click.stop="decline(); toggle()"
+      class="dialog__close svg-icon svg-icon--close"
+    )
 </template>
 <script>
   import elButton from './el-button'
@@ -36,6 +39,25 @@
     methods: {
       toggle () {
         this.$store.commit('toggleDialog')
+      },
+      decline () {
+        this.$store.dispatch('dialogDeclineAsync').then(() => {
+          if (this.$store.getters.isRemoveConcept) {
+            this.$store.commit('isRemoveConcept')
+            this.$store.commit('unsetWillRemoveConcept')
+          }
+        })
+      },
+      accept () {
+        this.$store.dispatch('dialogAcceptAsync').then(() => {
+          if (this.$store.getters.isRemoveTopics) {
+            this.$store.commit('removeTopic')
+          }
+          if (this.$store.getters.isRemoveConcept) {
+            this.$store.commit('removeConcept')
+            this.$store.commit('isRemoveConcept')
+          }
+        })
       }
     }
   }
@@ -43,7 +65,7 @@
 <style lang="scss">
   .dialog {
     position: absolute;
-    z-index: 1;
+    z-index: 5;
     top: calc(50% - 172px / 2);
     left: calc(50% - 254px / 2);
     box-sizing: border-box;
