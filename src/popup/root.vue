@@ -131,8 +131,17 @@
         return this.$store.getters.concepts[this.$store.getters.pickedTopic.name].slice().reverse()
       }
     },
-    created () { },
-    mounted () { },
+    beforeCreate () {
+      this.$store.commit({
+        type: 'pushDropdown',
+        ref: 'ddMenu',
+        actions: {
+          'add-topic': ['Add topic', 'Cancel'],
+          'change-topics': ['Change topics', 'Cancel'],
+          'remove-topics': ['Remove topics', 'Cancel']
+        }
+      })
+    },
     methods: {
       setFocus (ref) {
         this.$nextTick(() => {
@@ -145,7 +154,7 @@
         })
       },
       closeDialog (ref) {
-        if (!this.$store.state.a.isHidden) {
+        if (!this.$store.getters.isHiddenDialog) {
           this.$store.commit('closeDialog')
           this.$store.commit('isRemoveConcept')
           this.$store.commit('unsetWillRemoveConcept')

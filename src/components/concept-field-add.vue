@@ -55,7 +55,14 @@
         this.$refs.input.focus()
       },
       pushConcept () {
-        this.$store.commit('pushDropdown', 'ddConcept')
+        this.$store.commit({
+          type: 'pushDropdown',
+          ref: 'ddConcept',
+          actions: {
+            'change-concept': ['Change concept', 'Cancel'],
+            'remove-concept': ['Remove concept', 'Cancel']
+          }
+        })
         const pickedConcept = this.$store.getters.concepts[this.$store.getters.pickedTopic.name]
         this.$store.commit('pushConcept', pickedConcept)
         this.$store.commit('restoreNewConcept')

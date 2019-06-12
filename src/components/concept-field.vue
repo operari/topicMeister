@@ -104,6 +104,16 @@
         }
       }
     },
+    beforeCreate () {
+      this.$store.commit({
+        type: 'pushDropdown',
+        ref: 'ddConcept',
+        actions: {
+          'change-concept': ['Change concept', 'Cancel'],
+          'remove-concept': ['Remove concept', 'Cancel']
+        }
+      })
+    },
     methods: {
       toggle () {
         this.toggleConcept = !this.toggleConcept

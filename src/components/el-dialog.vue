@@ -33,7 +33,7 @@
         return this.$store.getters.isHiddenDialog
       },
       getTexts () {
-        return this.$store.state.a.texts
+        return this.$store.getters.dialogTexts
       }
     },
     methods: {

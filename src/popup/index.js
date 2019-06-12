@@ -15,7 +15,7 @@ Vue.loadScript('http://localhost:8098')
 
 // storage.clear()
 // storage.set('tmTopics', [ { id: 1, name: 'Angular', change: 'Angular', picked: false, prepared: false, isChange: false, remove: false }, { id: 2, name: 'React', change: 'React', picked: false, prepared: false, isChange: false, remove: false } ])
-// storage.set('tmConcepts', { 'Angular': [{ id: 1, title: 'Что такое Angular', content: 'Angular представляет фреймворк от компании Google для создания клиентских приложений. Прежде всего он нацелен на разработку SPA-решений (Single Page Application), то есть одностраничных приложений. Angular предоставляет такую функциональность, как двустороннее связывание, позволяющее динамически изменять данные в одном месте интерфейса при изменении данных модели в другом, шаблоны, маршрутизация и так далее.', titleChange: 'Что такое Angular', contentChange: 'Angular представляет фреймворк от компании Google для создания клиентских приложений. Прежде всего он нацелен на разработку SPA-решений (Single Page Application), то есть одностраничных приложений. Angular предоставляет такую функциональность, как двустороннее связывание, позволяющее динамически изменять данные в одном месте интерфейса при изменении данных модели в другом, шаблоны, маршрутизация и так далее.', remove: false }, { id: 2, title: 'Компоненты', content: 'Компоненты представляют основные строительные блоки приложения Angular. Компонент управляет отображением представления на экране.', titleChange: 'Компоненты', contentChange: 'Компоненты представляют основные строительные блоки приложения Angular. Компонент управляет отображением представления на экране.', remove: false }], 'React': [{ id: 1, title: 'Что такое React', content: 'React это реактивная либа', titleChange: 'Что такое React', contentChange: 'React это реактивная либа', remove: false }] })
+// storage.set('tmConcepts', { 'Angular': [{ id: 1, title: 'Что такое Angular', content: 'Angular представляет фреймворк от компании Google для создания клиентских приложений. Прежде всего он нацелен на разработку SPA-решений (Single Page Application), то есть одностраничных приложений. Angular предоставляет такую функциональность, как двустороннее связывание, позволяющее динамически изменять данные в одном месте интерфейса при изменении данных модели в другом, шаблоны, маршрутизация и так далее.', titleChange: 'Что такое Angular', contentChange: 'Angular представляет фреймворк от компании Google для создания клиентских приложений. Прежде всего он нацелен на разработку SPA-решений (Single Page Application), то есть одностраничных приложений. Angular предоставляет такую функциональность, как двустороннее связывание, позволяющее динамически изменять данные в одном месте интерфейса при изменении данных модели в другом, шаблоны, маршрутизация и так далее.', remove: false, inProcess: true, views: 2, timeLeft: 0 }, { id: 2, title: 'Компоненты', content: 'Компоненты представляют основные строительные блоки приложения Angular. Компонент управляет отображением представления на экране.', titleChange: 'Компоненты', contentChange: 'Компоненты представляют основные строительные блоки приложения Angular. Компонент управляет отображением представления на экране.', remove: false, inProcess: true, views: 0, timeLeft: 0 }], 'React': [{ id: 1, title: 'Что такое React', content: 'React это реактивная либа', titleChange: 'Что такое React', contentChange: 'React это реактивная либа', remove: false, inProcess: true, views: 1, timeLeft: 0 }] })
 
 const topic = {
   state: {
@@ -128,7 +128,8 @@ const concept = {
       content: 'Type content here...',
       titleChange: '',
       contentChange: '',
-      remove: false
+      remove: false,
+      inProcess: true
     },
     isRemoveConcept: false
   },
@@ -231,6 +232,9 @@ const dialog = {
     },
     isHiddenDialog (state) {
       return state.isHidden
+    },
+    dialogTexts (state) {
+      return state.texts
     }
   },
   mutations: {
@@ -271,38 +275,11 @@ const dialog = {
 
 const dropdown = {
   state: {
-    ddMenu: {
-      1: {
-        isHidden: true,
-        actions: {
-          'add-topic': ['Add topic', 'Cancel'],
-          'change-topics': ['Change topics', 'Cancel'],
-          'remove-topics': ['Remove topics', 'Cancel']
-        }
-      }
-    },
-    ddConcept: {
-      1: {
-        isHidden: true,
-        actions: {
-          'change-concept': ['Change concept', 'Cancel'],
-          'remove-concept': ['Remove concept', 'Cancel']
-        }
-      },
-      2: {
-        isHidden: true,
-        actions: {
-          'change-concept': ['Change concept', 'Cancel'],
-          'remove-concept': ['Remove concept', 'Cancel']
-        }
-      }
-    },
+    ddMenu: {},
+    ddConcept: {},
     newDropdown: {
       isHidden: true,
-      actions: {
-        'change-concept': ['Change concept', 'Cancel'],
-        'remove-concept': ['Remove concept', 'Cancel']
-      }
+      actions: {}
     }
   },
   mutations: {
@@ -327,18 +304,19 @@ const dropdown = {
         state[ref][id].actions[prop].reverse()
       }
     },
-    pushDropdown (state, ref) {
-      const maxId = Math.max.apply(null, Object.keys(state[ref]))
-      const newId = maxId + 1
-      Vue.set(state[ref], newId, Object.assign({}, state.newDropdown))
+    pushDropdown (state, payload) {
+      const id = !state[payload.ref]['1'] ? '1' : Math.max.apply(null, Object.keys(state[payload.ref])) + 1
+      const cloneNewDropdown = Object.assign({}, state.newDropdown)
+      cloneNewDropdown.actions = Object.assign({}, payload.actions)
+      Vue.set(state[payload.ref], id, Object.assign({}, cloneNewDropdown))
     }
   },
   getters: {
     isHiddenDropdown: state => (ref, id) => {
-      return state[ref][id].isHidden
+      return state[ref][id] && state[ref][id].isHidden
     },
     getMenuActions: state => (ref, id) => {
-      return state[ref][id].actions
+      return state[ref][id] && state[ref][id].actions
     }
   }
 }
@@ -346,10 +324,10 @@ const dropdown = {
 const store = new Vuex.Store({
   strict: true,
   modules: {
-    a: dialog,
-    b: dropdown,
-    topic: topic,
-    concept: concept
+    dialog,
+    dropdown,
+    topic,
+    concept
   }
 })
 
