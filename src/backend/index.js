@@ -10,7 +10,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     sendResponse(storage.get('tmConceptTimer'))
   }
   if (typeof request === 'object') {
-    console.log(request)
     storage.set('tmConceptTimer', request)
   }
 })

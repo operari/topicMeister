@@ -5,7 +5,7 @@ function addContentScript () {
     script.setAttribute('type', 'text/javascript')
     script.setAttribute('src', content)
     document.body.appendChild(script)
-    setTimeout(() => resolve(document.querySelector('.tm-cloud')), 50)
+    setTimeout(() => resolve(document.querySelector('.tm-box')), 1e3)
   })
 }
 const p1 = addContentScript()
@@ -21,9 +21,9 @@ const module = (() => {
     el: null,
     title: null,
     content: null,
-    isHidden: 'tm-cloud--hidden',
-    duration: 5 * 60 * 1000,
-    delay: 5 * 60 * 1000,
+    isHidden: 'tm-box--hidden',
+    duration: 5 * 60 * 1e3,
+    delay: 5 * 60 * 1e3,
     conceptTimer: {},
     sortConcepts (concepts) {
       const sortedConcepts = []
@@ -66,13 +66,12 @@ const module = (() => {
       el.classList.toggle(this.isHidden)
       setTimeout(() => this.play(el, i + 1), this.delay)
     },
-    init (cloud, concepts, conceptTimer) {
-      // console.log(conceptTimer)
-      this.title = cloud.querySelector('.tm-cloud__title')
-      this.content = cloud.querySelector('.tm-cloud__content')
+    init (box, concepts, conceptTimer) {
+      this.title = box.querySelector('.tm-box__title')
+      this.content = box.querySelector('.tm-box__content')
       this.concepts = this.sortConcepts(concepts)
       this.conceptTimer = conceptTimer && conceptTimer.hasOwnProperty('index') ? conceptTimer : { index: -1, timeSpent: 0 }
-      this.play(cloud, 0)
+      this.play(box, 0)
     }
   }
 })()
