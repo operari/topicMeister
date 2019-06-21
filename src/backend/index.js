@@ -6,10 +6,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request === 'getConcepts') {
     sendResponse(storage.get('tmConcepts'))
   }
-  if (request === 'getConceptInProcessTimer') {
+  if (request === 'getConceptTimer') {
     sendResponse(storage.get('tmConceptTimer'))
   }
-  if (typeof request === 'object') {
-    storage.set('tmConceptTimer', request)
-  }
+})
+
+chrome.runtime.onConnect.addListener(function (port) {
+  port.onMessage.addListener(function (msg) {
+    console.log(msg)
+    storage.set('tmConceptTimer', msg)
+  })
 })

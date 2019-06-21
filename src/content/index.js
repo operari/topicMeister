@@ -44,6 +44,7 @@ const module = (() => {
   }
 
   function appendBox () {
+    addBoxStyles()
     const box = document.createElement('div')
     box.className = 'tm-box tm-box--hidden'
     const content = document.createElement('div')
@@ -54,8 +55,6 @@ const module = (() => {
     box.appendChild(content)
     box.appendChild(title)
     document.body.appendChild(box)
-
-    addBoxStyles()
 
     return box
   }
@@ -114,6 +113,7 @@ const module = (() => {
       }
     },
     init () {
+      // console.log('content init')
       if (parent !== self) {
         return
       }

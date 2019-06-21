@@ -11,7 +11,7 @@ Vue.config.productionTip = false
 Vue.use(ElementUI)
 Vue.use(LoadScript)
 Vue.use(Vuex)
-Vue.loadScript('http://localhost:8098')
+// Vue.loadScript('http://localhost:8098')
 
 // storage.clear()
 // storage.set('tmTopics', [ { id: 1, name: 'Angular', change: 'Angular', picked: false, prepared: false, isChange: false, remove: false }, { id: 2, name: 'React', change: 'React', picked: false, prepared: false, isChange: false, remove: false } ])
