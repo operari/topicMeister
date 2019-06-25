@@ -126,15 +126,15 @@ var devtools =
 /******/ 	__webpack_require__.p = "/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 269);
+/******/ 	return __webpack_require__(__webpack_require__.s = 274);
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ 269:
+/***/ 274:
 /***/ (function(module, exports) {
 
-eval("chrome.devtools.panels.create('panel', 'img/logo.png', 'pages/panel.html', function (panel) {\n  console.log('hello from callback');\n});\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiMjY5LmpzIiwic291cmNlcyI6WyJ3ZWJwYWNrOi8vL3NyYy9kZXZ0b29scy9pbmRleC5qcz8yNjg3Il0sInNvdXJjZXNDb250ZW50IjpbImNocm9tZS5kZXZ0b29scy5wYW5lbHMuY3JlYXRlKCdwYW5lbCcsICdpbWcvbG9nby5wbmcnLCAncGFnZXMvcGFuZWwuaHRtbCcsIGZ1bmN0aW9uIChwYW5lbCkge1xuICBjb25zb2xlLmxvZygnaGVsbG8gZnJvbSBjYWxsYmFjaycpXG59KVxuXG5cblxuLy8gV0VCUEFDSyBGT09URVIgLy9cbi8vIHNyYy9kZXZ0b29scy9pbmRleC5qcyJdLCJtYXBwaW5ncyI6IkFBQUE7QUFDQTtBQUNBIiwic291cmNlUm9vdCI6IiJ9\n//# sourceURL=webpack-internal:///269\n");
+eval("chrome.devtools.panels.create('panel', 'img/logo.png', 'pages/panel.html', function (panel) {\n  console.log('hello from callback');\n});\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiMjc0LmpzIiwic291cmNlcyI6WyJ3ZWJwYWNrOi8vL3NyYy9kZXZ0b29scy9pbmRleC5qcz8yNjg3Il0sInNvdXJjZXNDb250ZW50IjpbImNocm9tZS5kZXZ0b29scy5wYW5lbHMuY3JlYXRlKCdwYW5lbCcsICdpbWcvbG9nby5wbmcnLCAncGFnZXMvcGFuZWwuaHRtbCcsIGZ1bmN0aW9uIChwYW5lbCkge1xuICBjb25zb2xlLmxvZygnaGVsbG8gZnJvbSBjYWxsYmFjaycpXG59KVxuXG5cblxuLy8gV0VCUEFDSyBGT09URVIgLy9cbi8vIHNyYy9kZXZ0b29scy9pbmRleC5qcyJdLCJtYXBwaW5ncyI6IkFBQUE7QUFDQTtBQUNBIiwic291cmNlUm9vdCI6IiJ9\n//# sourceURL=webpack-internal:///274\n");
 
 /***/ })
 
