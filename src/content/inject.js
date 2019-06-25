@@ -10,7 +10,7 @@ function addContentScript () {
 }
 const p1 = addContentScript()
 const p2 = new Promise((resolve, reject) => {
-  chrome.runtime.sendMessage('getConcepts', (response) => resolve(response))
+  chrome.runtime.sendMessage('getConcepts', response => resolve(response))
 })
 const module = (() => {
   return {
@@ -21,22 +21,57 @@ const module = (() => {
     cssClasses: {
       isHidden: 'tm-box--hidden'
     },
-    showDuration: 0.1 * 60 * 1e3,
-    hideDuration: 0.1 * 60 * 1e3,
-    conceptTimer: { index: -1, timeSpent: 0, isShowing: false, isHidden: false },
-    isTabInit: true,
-    isShowing: true,
-    isHidden: false,
-    timerId: 0,
-    get duration () {
-      const duration = this.conceptTimer.isShowing ? this.showDuration : this.hideDuration
-      // console.log('duration', duration)
-      return duration
+    timeSpent: 0,
+    currentIndex: 0,
+    get currentTime () {
+      return (new Date()).getTime()
+    },
+    get timeStart () {
+      return new Promise(resolve => chrome.runtime.sendMessage('getTimeStart', response => resolve(response)))
+    },
+    set timeStart (time) {
+      chrome.runtime.sendMessage({ setTimeStart: true, time: time })
+    },
+    get currentConceptIndex () {
+      return this.concepts.findIndex(o => this.timeSpent <= o.stackDuration)
+    },
+    set currentConceptIndex (i) {
+      this.currentIndex = i
+    },
+    get sumConceptsDuration () {
+      return this.concepts.reduce((acc, curr) => acc + curr.fullDuration, 0)
+    },
+    setTimeSpent () {
+      return new Promise(resolve => {
+        this.timeStart.then(timeStart => {
+          this.timeSpent = (this.currentTime - timeStart) % this.sumConceptsDuration
+          resolve()
+        })
+      })
+    },
+    getConceptState (o) {
+      const result = {
+        method: '',
+        timeLeft: 0
+      }
+      const i = this.currentConceptIndex
+      const conceptTimeSpent = i > 0 ? this.timeSpent - this.concepts[i - 1].stackDuration : this.timeSpent
+      let conceptTimeLeft = this.concepts[i].showDuration - conceptTimeSpent
+      if (conceptTimeLeft > -1) {
+        result.method = 'show'
+        result.timeLeft = conceptTimeLeft
+      } else {
+        conceptTimeLeft = this.concepts[i].fullDuration - conceptTimeSpent
+        result.method = 'hide'
+        result.timeLeft = conceptTimeLeft
+      }
+      this.currentConceptIndex = i
+      return result
     },
     sortConcepts (concepts) {
       const sortedConcepts = []
-      for (let prop in concepts) {
-        concepts[prop]
+      for (let concept in concepts) {
+        concepts[concept]
           .filter(o => o.inProcess)
           .forEach(o => sortedConcepts.push({
             title: o.title,
@@ -47,44 +82,14 @@ const module = (() => {
             fullDuration: o.showDuration + o.hideDuration
           }))
       }
-      sortedConcepts.sort((o1, o2) => o1.views - o2.views)
+      sortedConcepts
+        .sort((o1, o2) => o1.views - o2.views)
+        .reduce((o1, o2, i) => {
+          if (i === 1) o1.stackDuration = o1.fullDuration
+          o2.stackDuration = o1.stackDuration + o2.fullDuration
+          return o2
+        })
       return sortedConcepts
-    },
-    pushConceptTimerStorage () {
-      if (this.isTabInit) {
-      }
-    },
-    updateConceptTimer (i, showing, hidden) {
-      // console.log('isTabInit: ', this.isTabInit)
-      return new Promise((resolve, reject) => {
-        const self = this
-        this.conceptTimer.index = i
-        this.conceptTimer.isShowing = showing
-        this.conceptTimer.isHidden = hidden
-        this.timerId = setTimeout(function tick () {
-          self.conceptTimer.timeSpent += 1e3
-          self.pushConceptTimerStorage()
-          if (self.conceptTimer.timeSpent >= self.duration) {
-            clearTimeout(self.timerId)
-            self.conceptTimer.timeSpent = 0
-            resolve()
-          } else {
-            self.timerId = setTimeout(tick, 1e3)
-          }
-        }, 1e3)
-      })
-    },
-    setTabInit (conceptTimer) {
-      if (conceptTimer) {
-        console.log('obj')
-        this.isTabInit = false
-        Object.assign(this.conceptTimer, conceptTimer)
-        this.isShowing = this.conceptTimer.isShowing
-        this.isHidden = this.conceptTimer.isHidden
-        this.currentIndex = this.conceptTimer.index
-      } else {
-        this.port = chrome.runtime.connect({name: 'tmConceptTimer'})
-      }
     },
     repeat (i) {
       return !this.concepts[i] ? 0 : i
@@ -94,31 +99,31 @@ const module = (() => {
       this.title.textContent = this.concepts[i].title
       this.content.textContent = this.concepts[i].content
       el.classList.remove(this.cssClasses.isHidden)
-      this.updateConceptTimer(i, true, false)
-        .then(result => {
-          this.hide(el, i)
-        })
+      setTimeout(_ => this.hide(el, i), this.concepts[i].showDuration)
     },
     hide (el, i) {
       el.classList.add(this.cssClasses.isHidden)
-      this.updateConceptTimer(i, false, true)
-        .then(result => {
-          this.show(el, i + 1)
-        })
+      setTimeout(_ => this.show(el, i + 1), this.concepts[i].hideDuration)
     },
     init (box, concepts) {
       this.title = box.querySelector('.tm-box__title')
       this.content = box.querySelector('.tm-box__content')
       this.concepts = this.sortConcepts(concepts)
-      console.log(this.concepts)
-      // if (this.isShowing) {
-      //   console.log('isShowing')
-      //   this.show(box, this.currentIndex)
-      // }
-      // if (this.isHidden) {
-      //   console.log('isHidden')
-      //   this.hide(box, this.currentIndex)
-      // }
+      this.timeStart
+        .then(timeStart => {
+          console.log(this.timeStart)
+          if (timeStart === null) {
+            this.timeStart = this.currentTime
+            this.show(box, this.currentIndex)
+          } else {
+            this.setTimeSpent()
+              .then(result => {
+                const conceptState = this.getConceptState()
+                this.concepts[this.currentIndex][conceptState.method + 'Duration'] = conceptState.timeLeft
+                this[conceptState.method](box, this.currentIndex)
+              })
+          }
+        })
     }
   }
 })()
