@@ -145,14 +145,16 @@
       removeConcept () {
         this.$store.commit('setDialogTexts', 'dialog-remove-concept')
         this.$store.commit('toggleDialog')
-        this.$store.commit('isRemoveConcept')
-        this.$store.commit('setWillRemoveConcept', this.concept.id)
         this.$store.commit({
           type: 'reverseActionText',
           ref: 'ddConcept',
           id: this.concept.id,
           prop: 'remove-concept'
         })
+        if (this.concept.id > 1) {
+          this.$store.commit('isRemoveConcept')
+          this.$store.commit('setWillRemoveConcept', this.concept.id)
+        }
       }
     }
   }
@@ -188,10 +190,10 @@
         left: 0;
         bottom: 1px;
         width: 100%;
-        height: 17px;
+        height: 33px;
         content: '';
         border-radius: 0 0 3px 3px;
-        background-color: #ffffff;
+        background-image: linear-gradient(rgba(255, 255, 255, .3), rgba(255, 255, 255, .9));
       }
     }
     &__title {

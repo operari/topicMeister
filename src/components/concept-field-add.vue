@@ -2,12 +2,14 @@
   div(class="concepts__concept concepts__concept--add")
     .concepts__title
       input-field(
+        v-on:keyup-ctrl-enter="pushConcept()"
         v-model="newConceptTitle"
         :mix="'concepts__input'"
         ref="input"
       )
     .concepts__content
       textarea-field(
+        v-on:keyup-ctrl-enter="pushConcept()"
         v-model="newConceptContent"
         :mix="'concepts__textarea'"
       )

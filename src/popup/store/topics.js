@@ -3,7 +3,15 @@ import storage from '../../ext/storage'
 export const topic = {
   state: {
     topics: storage.get('tmTopics') || [],
-    newTopic: { id: 1, name: '', change: '', picked: false, isChange: false, prepared: false },
+    newTopic: {
+      id: 1,
+      name: '',
+      change: '',
+      picked: false,
+      isChange: false,
+      prepared: false,
+      remove: false
+    },
     isChangeTopics: false,
     isRemoveTopics: false
   },
@@ -72,7 +80,9 @@ export const topic = {
       state.topics.find(o => o.id === id).remove = true
     },
     removeTopic (state) {
-      state.topics.splice(state.topics.findIndex(o => o.remove), 1)
+      const removeTopicIndex = state.topics.findIndex(o => o.remove)
+      this.commit('removeAllConcepts', state.topics[removeTopicIndex].name)
+      state.topics.splice(removeTopicIndex, 1)
       storage.set('tmTopics', state.topics)
     },
     updateNewTopicName (state, newTopicName) {
@@ -80,13 +90,13 @@ export const topic = {
     },
     pushTopic (state, newTopic) {
       state.topics.push(newTopic)
-      storage.set('tmTopics', state.topics)
     },
     restoreNewTopic (state) {
       state.newTopic.name = ''
     },
     resetPreparedTopic (state) {
       this.getters.topics.find(o => o.prepared).prepared = false
+      storage.set('tmTopics', state.topics)
     },
     updateChangeTopicName (state, payload) {
       state.topics.find(o => o.id === payload.id).change = payload.value

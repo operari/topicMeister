@@ -14,7 +14,8 @@ const p2 = new Promise((resolve, reject) => {
 })
 const module = (() => {
   return {
-    concepts: [],
+    concepts: {},
+    sortedConcepts: [],
     el: null,
     title: null,
     content: null,
@@ -33,13 +34,13 @@ const module = (() => {
       chrome.runtime.sendMessage({ setTimeStart: true, time: time })
     },
     get currentConceptIndex () {
-      return this.concepts.findIndex(o => this.timeSpent <= o.stackDuration)
+      return this.sortedConcepts.findIndex(o => this.timeSpent <= o.stackDuration)
     },
     set currentConceptIndex (i) {
       this.currentIndex = i
     },
     get sumConceptsDuration () {
-      return this.concepts.reduce((acc, curr) => acc + curr.fullDuration, 0)
+      return this.sortedConcepts.reduce((acc, curr) => acc + curr.fullDuration, 0)
     },
     setTimeSpent () {
       return new Promise(resolve => {
@@ -49,31 +50,32 @@ const module = (() => {
         })
       })
     },
-    getConceptState (o) {
+    getConceptState () {
       const result = {
         method: '',
         timeLeft: 0
       }
-      const i = this.currentConceptIndex
-      const conceptTimeSpent = i > 0 ? this.timeSpent - this.concepts[i - 1].stackDuration : this.timeSpent
-      let conceptTimeLeft = this.concepts[i].showDuration - conceptTimeSpent
+      const i = this.currentConceptIndex === -1 ? 0 : this.currentConceptIndex
+      const conceptTimeSpent = i > 0 ? this.timeSpent - this.sortedConcepts[i - 1].stackDuration : this.timeSpent
+      let conceptTimeLeft = this.sortedConcepts[i].showDuration - conceptTimeSpent
       if (conceptTimeLeft > -1) {
         result.method = 'show'
         result.timeLeft = conceptTimeLeft
       } else {
-        conceptTimeLeft = this.concepts[i].fullDuration - conceptTimeSpent
+        conceptTimeLeft = this.sortedConcepts[i].fullDuration - conceptTimeSpent
         result.method = 'hide'
         result.timeLeft = conceptTimeLeft
       }
       this.currentConceptIndex = i
       return result
     },
-    sortConcepts (concepts) {
-      const sortedConcepts = []
-      for (let concept in concepts) {
-        concepts[concept]
+    sortConcepts () {
+      for (let topicName in this.concepts) {
+        this.concepts[topicName]
           .filter(o => o.inProcess)
-          .forEach(o => sortedConcepts.push({
+          .forEach(o => this.sortedConcepts.push({
+            id: o.id,
+            topicName: topicName,
             title: o.title,
             content: o.content,
             views: o.views,
@@ -82,48 +84,67 @@ const module = (() => {
             fullDuration: o.showDuration + o.hideDuration
           }))
       }
-      sortedConcepts
+      this.sortedConcepts
         .sort((o1, o2) => o1.views - o2.views)
         .reduce((o1, o2, i) => {
           if (i === 1) o1.stackDuration = o1.fullDuration
           o2.stackDuration = o1.stackDuration + o2.fullDuration
           return o2
         })
-      return sortedConcepts
     },
     repeat (i) {
-      return !this.concepts[i] ? 0 : i
+      return !this.sortedConcepts[i] ? 0 : i
+    },
+    updateConceptViews (state, sortedConcept) {
+      const concept = this.concepts[sortedConcept.topicName].find(o => o.id === sortedConcept.id)
+      if (state === 'show' && !concept.viewsUpdated) {
+        concept.views += 1
+        concept.viewsUpdated = true
+        chrome.runtime.sendMessage({ 'updateConcepts': true, 'concepts': this.concepts })
+      }
+      if (state === 'hide' && concept.viewsUpdated) {
+        concept.viewsUpdated = false
+        chrome.runtime.sendMessage({ 'updateConcepts': true, 'concepts': this.concepts })
+      }
     },
     show (el, i) {
       i = this.repeat(i)
-      this.title.textContent = this.concepts[i].title
-      this.content.textContent = this.concepts[i].content
+      this.title.textContent = this.sortedConcepts[i].title
+      this.content.textContent = this.sortedConcepts[i].content
       el.classList.remove(this.cssClasses.isHidden)
-      setTimeout(_ => this.hide(el, i), this.concepts[i].showDuration)
+      setTimeout(_ => {
+        this.updateConceptViews('show', this.sortedConcepts[i])
+        this.hide(el, i)
+      }, this.sortedConcepts[i].showDuration)
     },
     hide (el, i) {
       el.classList.add(this.cssClasses.isHidden)
-      setTimeout(_ => this.show(el, i + 1), this.concepts[i].hideDuration)
+      this.updateConceptViews('hide', this.sortedConcepts[i])
+      setTimeout(_ => {
+        this.show(el, i + 1)
+      }, this.sortedConcepts[i].hideDuration)
     },
     init (box, concepts) {
-      this.title = box.querySelector('.tm-box__title')
-      this.content = box.querySelector('.tm-box__content')
-      this.concepts = this.sortConcepts(concepts)
-      this.timeStart
-        .then(timeStart => {
-          console.log(this.timeStart)
-          if (timeStart === null) {
-            this.timeStart = this.currentTime
-            this.show(box, this.currentIndex)
-          } else {
-            this.setTimeSpent()
-              .then(result => {
-                const conceptState = this.getConceptState()
-                this.concepts[this.currentIndex][conceptState.method + 'Duration'] = conceptState.timeLeft
-                this[conceptState.method](box, this.currentIndex)
-              })
-          }
-        })
+      if (box && concepts && Object.keys(concepts).length) {
+        this.title = box.querySelector('.tm-box__title')
+        this.content = box.querySelector('.tm-box__content')
+        this.concepts = concepts
+        this.sortConcepts()
+        this.timeStart
+          .then(timeStart => {
+            if (timeStart === null) {
+              this.timeStart = this.currentTime
+              this.show(box, this.currentIndex)
+            } else {
+              this.setTimeSpent()
+                .then(result => {
+                  const conceptState = this.getConceptState()
+                  this.sortedConcepts[this.currentIndex][conceptState.method + 'Duration'] = conceptState.timeLeft
+                  this[conceptState.method](box, this.currentIndex)
+                })
+            }
+          })
+      }
     }
   }
 })()

@@ -8,10 +8,15 @@ export const concept = {
       id: 1,
       title: 'Type title here...',
       content: 'Type content here...',
-      titleChange: '',
-      contentChange: '',
+      titleChange: 'Type title here...',
+      contentChange: 'Type content here...',
       remove: false,
-      inProcess: true
+      inProcess: true,
+      views: 0,
+      viewsUpdated: false,
+      timeLeft: 0,
+      showDuration: 5 * 60 * 1e3,
+      hideDuration: 5 * 60 * 1e3
     },
     isRemoveConcept: false
   },
@@ -71,6 +76,8 @@ export const concept = {
     },
     pushConcept (state, pickedConcept) {
       this.commit('newConceptId', pickedConcept)
+      state.newConcept.titleChange = state.newConcept.title
+      state.newConcept.contentChange = state.newConcept.content
       pickedConcept.push(Object.assign({}, state.newConcept))
       storage.set('tmConcepts', state.concepts)
     },
@@ -92,6 +99,10 @@ export const concept = {
           storage.set('tmConcepts', state.concepts)
         }
       }
+    },
+    removeAllConcepts (state, topic) {
+      delete state.concepts[topic]
+      storage.set('tmConcepts', state.concepts)
     }
   },
   actions: {

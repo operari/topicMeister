@@ -14,6 +14,7 @@ const module = (() => {
         width: 550px;
         min-height: 114px;
         padding: 15px;
+        opacity: .5;
         text-align: left;
         transition: opacity .5s ease-out;
         cursor: move;
@@ -21,6 +22,9 @@ const module = (() => {
         border-radius: 5px;
         background-color: #ffffff;
         box-shadow: 0px 3px 4px rgba(0, 0, 0, 0.25);
+      }
+      .tm-box:hover {
+        opacity: 1;
       }
       .tm-box--hidden {
         visibility: hidden;
