@@ -68,9 +68,11 @@ const module = (() => {
     bound: null,
     x: 0,
     y: 0,
+    move: false,
     getBoxPosition (boxOffset, e) {
       const { clientX: x, clientY: y } = e
       const { x: boxOffsetX, y: boxOffsetY } = boxOffset
+
       return {
         'x': x - boxOffsetX + 'px',
         'y': y - boxOffsetY + 'px'
@@ -79,52 +81,66 @@ const module = (() => {
     getBoxOffset (e) {
       const y = e.clientY - e.currentTarget.offsetTop
       const x = e.clientX - e.currentTarget.offsetLeft
+
       return { x, y }
     },
-    moveBox () {
+    registerBoxEvents () {
       this.box.addEventListener('mousedown', (e) => {
-        const boxOffset = this.getBoxOffset(e)
-        this.bound = (e) => {
-          const { x, y } = this.getBoxPosition.call(e.currentTarget, boxOffset, e)
-          e.currentTarget.style.right = ''
-          e.currentTarget.style.left = x
-          e.currentTarget.style.top = y
-          this.x = x
-          this.y = y
-        }
+        this.moveBox(e)
         this.box.addEventListener('mousemove', this.bound)
       })
+      this.box.addEventListener('mouseleave', () => {
+        this.stopBox()
+      })
+      this.box.addEventListener('mouseup', (e) => {
+        this.stopBox()
+      })
+      this.box.addEventListener('dblclick', (e) => {
+        this.putDefaultPlace()
+      })
+    },
+    moveBox (e) {
+      const boxOffset = this.getBoxOffset(e)
+
+      this.bound = (e) => {
+        const { x, y } = this.getBoxPosition.call(e.currentTarget, boxOffset, e)
+
+        e.currentTarget.style.right = ''
+        e.currentTarget.style.left = x
+        e.currentTarget.style.top = y
+        this.x = x
+        this.y = y
+      }
+      this.move = true
     },
     stopBox () {
-      this.box.addEventListener('mouseup', (e) => {
+      if (this.move) {
         sStorage.set('tmBoxCoor', { x: this.x, y: this.y })
         this.box.removeEventListener('mousemove', this.bound)
-      })
+        this.move = false
+      }
     },
     putDefaultPlace () {
-      this.box.addEventListener('dblclick', (e) => {
-        this.box.style.left = ''
-        this.box.style.right = '20px'
-        this.box.style.top = '20px'
-        sStorage.remove('tmBoxCoor')
-      })
+      this.box.style.left = ''
+      this.box.style.right = '20px'
+      this.box.style.top = '20px'
+      sStorage.remove('tmBoxCoor')
     },
     putOnChangedPlace () {
       const coor = sStorage.get('tmBoxCoor')
+
       if (coor) {
         this.box.style.left = coor.x
         this.box.style.top = coor.y
       }
     },
     init () {
-      // console.log('content init')
       if (parent !== self) {
         return
       }
       this.box = appendBox()
       this.putOnChangedPlace()
-      this.moveBox()
-      this.stopBox()
+      this.registerBoxEvents()
       this.putDefaultPlace()
     }
   }

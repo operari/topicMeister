@@ -58,6 +58,7 @@ const module = (() => {
       const i = this.currentConceptIndex === -1 ? 0 : this.currentConceptIndex
       const conceptTimeSpent = i > 0 ? this.timeSpent - this.sortedConcepts[i - 1].stackDuration : this.timeSpent
       let conceptTimeLeft = this.sortedConcepts[i].showDuration - conceptTimeSpent
+
       if (conceptTimeLeft > -1) {
         result.method = 'show'
         result.timeLeft = conceptTimeLeft
@@ -66,7 +67,9 @@ const module = (() => {
         result.method = 'hide'
         result.timeLeft = conceptTimeLeft
       }
+
       this.currentConceptIndex = i
+
       return result
     },
     sortConcepts () {
@@ -89,6 +92,7 @@ const module = (() => {
         .reduce((o1, o2, i) => {
           if (i === 1) o1.stackDuration = o1.fullDuration
           o2.stackDuration = o1.stackDuration + o2.fullDuration
+
           return o2
         })
     },
@@ -139,6 +143,7 @@ const module = (() => {
               this.setTimeSpent()
                 .then(result => {
                   const conceptState = this.getConceptState()
+
                   this.sortedConcepts[this.currentIndex][conceptState.method + 'Duration'] = conceptState.timeLeft
                   this[conceptState.method](box, this.currentIndex)
                 })

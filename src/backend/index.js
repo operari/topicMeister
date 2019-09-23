@@ -9,6 +9,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request && request.updateConcepts) {
     const curr = storage.get('tmConcepts')
     const upd = request.updateConcepts
+
     storage.set('tmConcepts', Object.assign(curr, upd))
   }
   if (request && request.setTimeStart) {

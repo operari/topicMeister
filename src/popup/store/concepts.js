@@ -34,6 +34,7 @@ export const concept = {
   mutations: {
     prepareConcept (state) {
       const topicPrepared = this.getters.topics.find(o => o.prepared)
+
       Vue.set(state.concepts, topicPrepared.name, [Object.assign({}, state.newConcept)])
       storage.set('tmConcepts', state.concepts)
     },
@@ -41,21 +42,25 @@ export const concept = {
       if (payload.change === payload.name) {
         return
       }
+
       Vue.set(state.concepts, payload.change, state.concepts[payload.name].slice())
       delete state.concepts[payload.name]
       storage.set('tmConcepts', state.concepts)
     },
     updateConceptTitleChange (state, payload) {
       const picked = this.getters.pickedTopic.name
+
       state.concepts[picked].find(o => o.id === payload.id).titleChange = payload.value
     },
     updateConceptContentChange (state, payload) {
       const picked = this.getters.pickedTopic.name
+
       state.concepts[picked].find(o => o.id === payload.id).contentChange = payload.value
     },
     updateConcept (state, payload) {
       const picked = this.getters.pickedTopic.name
       const concept = state.concepts[picked].find(o => o.id === payload.id)
+
       concept.title = concept.titleChange
       concept.content = concept.contentChange
       storage.set('tmConcepts', state.concepts)
@@ -86,6 +91,7 @@ export const concept = {
     },
     unsetWillRemoveConcept (state) {
       const concept = state.concepts[this.getters.pickedTopic.name].find(o => o.remove)
+
       concept.remove = false
     },
     isRemoveConcept (state) {
@@ -94,6 +100,7 @@ export const concept = {
     removeConcept (state) {
       if (state.isRemoveConcept) {
         const picked = state.concepts[this.getters.pickedTopic.name]
+
         if (picked.some(o => o.remove)) {
           picked.splice(picked.findIndex(o => o.remove), 1)
           storage.set('tmConcepts', state.concepts)
