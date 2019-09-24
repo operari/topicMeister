@@ -22,7 +22,6 @@
       content: '';
       background-color: white;
     }
-    &::before {}
     &::after {
       transform: rotate(90deg);
     }

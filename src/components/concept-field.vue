@@ -83,6 +83,9 @@
       textareaField
     },
     computed: {
+      isConceptCreatedFirst () {
+        return this.concept.id === 1
+      },
       cropTitle: {
         get () {
           return this.isTitleCrop && this.concept.title.length >= this.titleLength ? this.concept.title.substr(0, this.titleLength) + '...' : this.concept.title
@@ -165,7 +168,7 @@
           id: this.concept.id,
           prop: 'remove-concept'
         })
-        if (this.concept.id > 1) {
+        if (!this.isConceptCreatedFirst) {
           this.$store.commit('isRemoveConcept')
           this.$store.commit('setWillRemoveConcept', this.concept.id)
         }

@@ -155,9 +155,13 @@
       },
       closeDialog (ref) {
         if (!this.$store.getters.isHiddenDialog) {
-          this.$store.commit('closeDialog')
-          this.$store.commit('isRemoveConcept')
-          this.$store.commit('unsetWillRemoveConcept')
+          this.$store.dispatch('dialogDeclineAsync').then(() => {
+            if (this.$store.getters.isRemoveConcept) {
+              this.$store.commit('isRemoveConcept')
+              this.$store.commit('unsetWillRemoveConcept')
+            }
+            this.$store.commit('closeDialog')
+          })
         }
       },
       toggleDropdown (ref, id) {
