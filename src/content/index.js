@@ -141,7 +141,6 @@ const module = (() => {
       this.box = appendBox()
       this.putOnChangedPlace()
       this.registerBoxEvents()
-      this.putDefaultPlace()
     }
   }
 })()
