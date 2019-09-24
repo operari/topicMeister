@@ -2,6 +2,7 @@
   div(:class="[{ 'concepts__concept--full': toggleConcept }, { 'concepts__concept--change' : isChangeConcept }, 'concepts__concept']")
     .concepts__controls
       button-act(
+        v-show="isTitleCrop"
         :mix="'concepts__control'"
         :modifier="'play'"
         :isSmall="true"
@@ -13,6 +14,7 @@
         :isSmall="true"
       )
       button-act(
+        v-show="isTitleCrop"
         :mix="'concepts__control concepts__count'"
         :modifier="'eye'"
         :isSmall="true"
@@ -25,7 +27,7 @@
         :reference="'ddConcept'"
         :id="concept.id"
       )
-    div(v-if="!isChangeConcept" class="concepts__title") {{ concept.title }}
+    div(v-if="!isChangeConcept" class="concepts__title" v-on:mouseenter="cropTitle = false" v-on:mouseleave="cropTitle = true") {{ cropTitle }}
     div(v-else class="concepts__title")
       input-field(
         v-on:keyup-ctrl-enter="updateConcept()"
@@ -70,7 +72,9 @@
     props: ['concept'],
     data: () => ({
       toggleConcept: false,
-      isChangeConcept: false
+      isChangeConcept: false,
+      titleLength: 30,
+      isTitleCrop: true
     }),
     components: {
       buttonAct,
@@ -79,6 +83,16 @@
       textareaField
     },
     computed: {
+      cropTitle: {
+        get () {
+          return this.isTitleCrop && this.concept.title.length >= this.titleLength ? this.concept.title.substr(0, this.titleLength) + '...' : this.concept.title
+        },
+        set (crop) {
+          if (this.concept.title.length >= this.titleLength) {
+            this.isTitleCrop = crop
+          }
+        }
+      },
       titleChange: {
         get () {
           return this.concept.titleChange
