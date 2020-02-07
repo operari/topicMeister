@@ -8,9 +8,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
   if (request && request.updateConcepts) {
     const curr = storage.get('tmConcepts')
-    const upd = request.updateConcepts
 
-    storage.set('tmConcepts', Object.assign(curr, upd))
+    storage.set('tmConcepts', Object.assign(curr, request.concepts))
   }
   if (request && request.setTimeStart) {
     sendResponse(storage.set('tmTimeStart', request.time))

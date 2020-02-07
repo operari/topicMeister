@@ -1,5 +1,6 @@
 <template lang="pug">
-  div(:class="[{ 'concepts__concept--full': toggleConcept }, { 'concepts__concept--change' : isChangeConcept }, 'concepts__concept']")
+  div(:class="[{ 'concepts__concept--full': toggleConcept }, { 'concepts__concept--change' : isChangeConcept }, 'concepts__concept']" :data-id="concept.id")
+    //- div(class="concept__id")
     .concepts__controls
       button-act(
         v-show="isTitleCrop"
@@ -18,6 +19,7 @@
         :mix="'concepts__control concepts__count'"
         :modifier="'eye'"
         :isSmall="true"
+        :title="concept.views"
       )
       dropdown(
         v-on:change-concept="changeConcept()"
@@ -177,6 +179,8 @@
   }
   </script>
 <style lang="scss">
+  $count-size: 15px;
+
   .concepts {
     min-width: 280px;
     &__concept {
@@ -197,10 +201,21 @@
         height: auto;
         min-height: 140px;
       }
-      // &--add {
-      //   min-height: 88px;
-      //   height: auto;
-      // }
+      &::before {
+        font-size: 10px;
+        line-height: $count-size;
+        position: absolute;
+        z-index: 2;
+        bottom: 3px;
+        left: 3px;
+        min-width: $count-size;
+        min-height: $count-size;
+        text-align: center;
+        content: attr(data-id);
+        border-radius: 3px;
+        color: white;
+        background-color: #acacac;
+      }
       &::after {
         position: absolute;
         z-index: 1;
@@ -211,6 +226,13 @@
         content: '';
         border-radius: 0 0 3px 3px;
         background-image: linear-gradient(rgba(255, 255, 255, .3), rgba(255, 255, 255, .9));
+      }
+      &--add {
+        // min-height: 88px;
+        // height: auto;
+        &::before {
+          display: none;
+        }
       }
     }
     &__title {

@@ -15,7 +15,7 @@ export const concept = {
       views: 0,
       viewsUpdated: false,
       timeLeft: 0,
-      showDuration: 5 * 60 * 1e3,
+      showDuration: 5000,
       hideDuration: 5000
     },
     isRemoveConcept: false

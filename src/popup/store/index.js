@@ -9,7 +9,7 @@ import { concept } from '../store/concepts'
 
 Vue.use(LoadScript)
 Vue.use(Vuex)
-// Vue.loadScript('http://localhost:8098')
+Vue.loadScript('http://localhost:8098')
 
 export const store = new Vuex.Store({
   strict: true,

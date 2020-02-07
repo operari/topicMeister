@@ -101,8 +101,10 @@ const module = (() => {
     },
     updateConceptViews (state, sortedConcept) {
       const concept = this.concepts[sortedConcept.topicName].find(o => o.id === sortedConcept.id)
+
       if (state === 'show' && !concept.viewsUpdated) {
         concept.views += 1
+
         concept.viewsUpdated = true
         chrome.runtime.sendMessage({ 'updateConcepts': true, 'concepts': this.concepts })
       }

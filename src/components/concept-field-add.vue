@@ -66,6 +66,7 @@
           }
         })
         const pickedConcept = this.$store.getters.concepts[this.$store.getters.pickedTopic.name]
+        console.log('%c⧭', 'color: #733d00', pickedConcept)
         this.$store.commit('pushConcept', pickedConcept)
         this.$store.commit('restoreNewConcept')
       }
